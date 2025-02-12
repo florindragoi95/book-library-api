@@ -1,0 +1,57 @@
+#Create a Book
+###
+POST http://localhost:3000/books
+Content-Type: application/json
+
+{
+  "id": 101,
+  "name": "The Hobbit",
+  "categoryId": 2
+}
+###
+
+###
+POST http://localhost:3000/books
+Content-Type: application/json
+
+{
+  "id": 102,
+  "name": "Dune",
+  "categoryId": 1
+}
+###
+
+
+#List all Books
+###
+GET http://localhost:3000/books
+###
+
+
+#List a Book by Id
+###
+GET http://localhost:3000/books/2
+###
+
+
+#List Books by Category
+###
+GET http://localhost:3000/books/category/2
+###
+
+
+#Update a Book
+###
+PATCH http://localhost:3000/books/101
+Content-Type: application/json
+
+{
+  "name": "The Hobbit - Updated"
+}
+###
+
+
+#Delete a Book
+###
+DELETE http://localhost:3000/books/101
+###
