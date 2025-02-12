@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
+import {Book} from "../books/book.entity";
 
 @Entity()
 export class Category {
@@ -11,5 +12,11 @@ export class Category {
 
     @Column({ nullable: true })
     parentCategoryId?: number;
+
+    @OneToMany(() => Book, (book) => book.category, { cascade: ['remove'] })
+    books: Book[];
+
+    // @OneToMany(() => Category, (category) => category.parentCategoryId)
+    // subcategories: Category[];
 
 }

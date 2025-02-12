@@ -17,8 +17,8 @@ import {DataSource} from "typeorm";
       host: process.env.DATABASE_HOST!,
       port: parseInt(process.env.DATABASE_PORT!, 10),
       username: process.env.DATABASE_USER!,
-      password: process.env.DATABASE_PASSWORD!,   // your PostgreSQL password
-      database: process.env.DATABASE_NAME!,       // your PostgreSQL database name
+      password: process.env.DATABASE_PASSWORD!,
+      database: process.env.DATABASE_NAME!,
       entities: [Book, Category], //['dist/**/*.entity{.ts,.js}']
       synchronize: true,
     }),

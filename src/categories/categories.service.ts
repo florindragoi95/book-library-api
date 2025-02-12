@@ -1,10 +1,10 @@
-import {BadRequestException, forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
-import {BooksService} from "../books/books.service";
-import {CreateCategoryDto} from "./dto/create-category.dto";
-import {UpdateCategoryDto} from "./dto/update-category.dto";
-import {Category} from "./category.entity";
-import {Repository} from "typeorm";
-import {InjectRepository} from "@nestjs/typeorm";
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BooksService } from "../books/books.service";
+import { CreateCategoryDto } from "./dto/create-category.dto";
+import { UpdateCategoryDto } from "./dto/update-category.dto";
+import { Category } from "./category.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class CategoriesService {
@@ -55,11 +55,6 @@ export class CategoriesService {
 
     async delete(id: number): Promise<void> {
         await this.findOne(id);
-        await this.booksService.deleteByCategory(id);
-
-        // const subcategoryIds = await this.getAllSubcategoryIdsRecursively(id);
-        // await this.categoryRepository.delete(subcategoryIds);
-
         await this.categoryRepository.delete(id);
     }
 
@@ -73,5 +68,4 @@ export class CategoriesService {
         }
         return subcategoryIds;
     }
-
 }

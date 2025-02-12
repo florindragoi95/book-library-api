@@ -1,11 +1,11 @@
-import {BadRequestException, forwardRef, Inject, Injectable, NotFoundException} from '@nestjs/common';
-import {CategoriesService} from "../categories/categories.service";
-import {CreateBookDto} from "./dto/create-book.dto";
-import {UpdateBookDto} from "./dto/update-book.dto";
-import {Book} from "./book.entity";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
-import {GetBookWithBreadcrumbDto} from "./dto/get-book-with-breadcrumb.dto";
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { CategoriesService } from "../categories/categories.service";
+import { CreateBookDto } from "./dto/create-book.dto";
+import { UpdateBookDto } from "./dto/update-book.dto";
+import { Book } from "./book.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
 
 @Injectable()
 export class BooksService {
@@ -16,7 +16,6 @@ export class BooksService {
 
         @InjectRepository(Book)
         private bookRepository: Repository<Book>,
-
     ) {}
 
     async create(createBookDto: CreateBookDto): Promise<Book> {
@@ -25,16 +24,27 @@ export class BooksService {
             throw new BadRequestException('Book name already exists.');
         }
 
-        const newBook = this.bookRepository.create(createBookDto);
+        const category = await this.categoriesService.findOne(createBookDto.categoryId);
+        if (!category) {
+            throw new NotFoundException(`Category with ID ${createBookDto.categoryId} not found.`);
+        }
+
+        const newBook = this.bookRepository.create({
+            name: createBookDto.name,
+            author: createBookDto.author,
+            category,
+            description: createBookDto.description,
+        });
+
         return this.bookRepository.save(newBook);
     }
 
     async findAll(): Promise<Book[]> {
-        return this.bookRepository.find();
+        return this.bookRepository.find({ relations: ['category'] });
     }
 
     async findOne(id: number): Promise<Book> {
-        const book = await this.bookRepository.findOne({ where: { id } });
+        const book = await this.bookRepository.findOne({ where: { id }, relations: ['category'] });
         if (!book) {
             throw new NotFoundException('Book not found');
         }
@@ -43,14 +53,18 @@ export class BooksService {
 
     async findOneWithBreadcrumb(id: number): Promise<GetBookWithBreadcrumbDto> {
         const book = await this.findOne(id);
-        if (!book) {
-            throw new NotFoundException('Book not found');
+        if (!book.category) {
+            throw new NotFoundException('Category not found for the book');
         }
 
-        const breadcrumb = await this.getCategoryBreadcrumb(book.categoryId);
+        const breadcrumb = await this.getCategoryBreadcrumb(book.category.id);
 
         return {
-            ...book,
+            id: book.id,
+            name: book.name,
+            author: book.author,
+            description: book.description,
+            categoryId: book.category.id,
             breadcrumb,
         };
     }
@@ -65,6 +79,22 @@ export class BooksService {
             }
         }
 
+        if (updateBookDto.categoryId) {
+            const category = await this.categoriesService.findOne(updateBookDto.categoryId);
+            if (!category) {
+                throw new NotFoundException(`Category with ID ${updateBookDto.categoryId} not found.`);
+            }
+            book.category = category;
+        }
+
+        if (updateBookDto.description) {
+            book.description = updateBookDto.description;
+        }
+
+        if (updateBookDto.author) {
+            book.author = updateBookDto.author;
+        }
+
         Object.assign(book, updateBookDto);
         return this.bookRepository.save(book);
     }
@@ -76,14 +106,12 @@ export class BooksService {
         }
     }
 
-    async deleteByCategory(categoryId: number): Promise<void> {
-        await this.bookRepository.delete({ categoryId });
-    }
-
     async findByCategoryAndSubcategories(categoryId: number): Promise<Book[]> {
+        const category = await this.categoriesService.findOne(categoryId);
         const subcategoryIds = await this.categoriesService.getAllSubcategoryIdsRecursively(categoryId);
         return this.bookRepository.find({
-            where: [{ categoryId }, ...subcategoryIds.map(id => ({ categoryId: id }))],
+            where: [{ category }, ...subcategoryIds.map(id => ({ category: { id } }))],
+            relations: ['category'],
         });
     }
 
@@ -108,5 +136,4 @@ export class BooksService {
 
         return breadcrumb;
     }
-
 }

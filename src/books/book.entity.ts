@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from 'typeorm';
+import {Category} from "../categories/category.entity";
 
 @Entity()
 export class Book {
@@ -12,8 +13,8 @@ export class Book {
     @Column()
     author: string;
 
-    @Column()
-    categoryId: number;
+    @ManyToOne(() => Category, (category) => category.books, { onDelete: 'CASCADE' })
+    category: Category;
 
     @Column({ nullable: true })
     description?: string;
