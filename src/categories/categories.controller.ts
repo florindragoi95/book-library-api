@@ -18,10 +18,10 @@ export class CategoriesController {
         return this.categoriesService.findAll();
     }
 
-    // @Get(':id')
-    // async findOne(@Param('id', ParseIntPipe) id: number): Promise<Category> {
-    //     return this.categoriesService.findOne(id);
-    // }
+    @Get(':id')
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<Category> {
+        return this.categoriesService.findOne(id);
+    }
 
     @Patch(':id')
     async update(

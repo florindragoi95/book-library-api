@@ -4,8 +4,7 @@ POST http://localhost:3000/categories
 Content-Type: application/json
 
 {
-  "id": 1,
-  "name": "Fiction"
+  "name": "Animale"
 }
 ###
 
@@ -16,9 +15,8 @@ POST http://localhost:3000/categories
 Content-Type: application/json
 
 {
-  "id": 2,
-  "name": "Fantasy",
-  "parentCategoryId": 1
+  "name": "Pisici",
+  "parentCategoryId": 7
 }
 ###
 
@@ -31,22 +29,22 @@ GET http://localhost:3000/categories
 
 #List a Category by Id
 ###
-GET http://localhost:3000/categories/1
+GET http://localhost:3000/categories/10
 ###
 
 
 #Update a Category
 ###
-PATCH http://localhost:3000/categories/1
+PATCH http://localhost:3000/categories/11
 Content-Type: application/json
 
 {
-  "name": "Fantasy"
+  "parentCategoryId": 12
 }
 ###
 
 
 #Delete a Category and its books
 ###
-DELETE http://localhost:3000/categories/1
+DELETE http://localhost:3000/categories/12
 ###

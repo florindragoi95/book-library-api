@@ -3,7 +3,7 @@ import { BooksService } from "../books/books.service";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { Category } from "./category.entity";
-import { Repository } from "typeorm";
+import {Repository} from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
@@ -55,6 +55,7 @@ export class CategoriesService {
 
     async delete(id: number): Promise<void> {
         await this.findOne(id);
+        await this.categoryRepository.update({ parentCategoryId: id }, { parentCategoryId: null });
         await this.categoryRepository.delete(id);
     }
 

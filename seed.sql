@@ -4,7 +4,7 @@ INSERT INTO category ("name", "parentCategoryId") VALUES ('Science Fiction', 1);
 INSERT INTO category ("name", "parentCategoryId") VALUES ('Fantasy', 1);
 INSERT INTO category ("name", "parentCategoryId") VALUES ('Non-fiction', NULL);
 INSERT INTO category ("name", "parentCategoryId") VALUES ('Biography', 4);
-INSERT INTO category ("name", "parentCategoryId") VALUES ('Self-help', 4)
+INSERT INTO category ("name", "parentCategoryId") VALUES ('Self-help', 4);
 
 -- Insert books
     INSERT INTO book (name, author, "categoryId", description)

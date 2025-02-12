@@ -10,13 +10,10 @@ export class Category {
     @Column({ unique: true })
     name: string;
 
-    @Column({ nullable: true })
-    parentCategoryId?: number;
+    @Column({ nullable: true, type: "int" })
+    parentCategoryId?: number | null;
 
     @OneToMany(() => Book, (book) => book.category, { cascade: ['remove'] })
     books: Book[];
-
-    // @OneToMany(() => Category, (category) => category.parentCategoryId)
-    // subcategories: Category[];
 
 }
