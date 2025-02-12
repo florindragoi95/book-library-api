@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CategoriesService } from "../categories/categories.service";
 import { CreateBookDto } from "./dto/create-book.dto";
 import { UpdateBookDto } from "./dto/update-book.dto";
@@ -11,7 +11,6 @@ import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
 export class BooksService {
 
     constructor(
-        @Inject(forwardRef(() => CategoriesService))
         private readonly categoriesService: CategoriesService,
 
         @InjectRepository(Book)
