@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { Category } from "./category.entity";
@@ -16,7 +16,7 @@ export class CategoriesService {
     async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
         const existingCategory = await this.categoryRepository.findOne({ where: { name: createCategoryDto.name } });
         if (existingCategory) {
-            throw new BadRequestException('Category name already exists.');
+            throw new ConflictException('Category name already exists.');
         }
 
         const newCategory = this.categoryRepository.create(createCategoryDto);
@@ -41,7 +41,7 @@ export class CategoriesService {
         if (updateCategoryDto.name) {
             const existingCategory = await this.categoryRepository.findOne({ where: { name: updateCategoryDto.name } });
             if (existingCategory && existingCategory.id !== id) {
-                throw new BadRequestException('Category name already exists.');
+                throw new ConflictException('Category name already exists.');
             }
         }
 

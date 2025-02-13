@@ -4,9 +4,10 @@ import { CategoriesService } from '../categories/categories.service';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Book } from './book.entity';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import {NotFoundException, ConflictException} from '@nestjs/common';
 import {Category} from "../categories/category.entity";
 import {CreateBookDto} from "./dto/create-book.dto";
+import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
 
 describe('BooksService', () => {
   let service: BooksService;
@@ -75,7 +76,7 @@ describe('BooksService', () => {
     it('should throw an error if book name already exists', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockBook);
       await expect(service.create({ name: 'Dune', author: 'Frank Herbert', categoryId: 1 }))
-          .rejects.toThrow(BadRequestException);
+          .rejects.toThrow(ConflictException);
     });
 
     it('should throw NotFoundException if category does not exist', async () => {
@@ -123,7 +124,7 @@ describe('BooksService', () => {
     it('should throw error if new name already exists', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(mockBook);
       jest.spyOn(repository, 'findOne').mockResolvedValue({ id: 2, name: 'Dune Messiah', author: 'Frank Herbert', category: mockCategory });
-      await expect(service.update(1, { name: 'Dune Messiah' })).rejects.toThrow(BadRequestException);
+      await expect(service.update(1, { name: 'Dune Messiah' })).rejects.toThrow(ConflictException);
     });
 
     it('should throw error if category ID is invalid', async () => {
@@ -195,9 +196,15 @@ describe('BooksService', () => {
         books: [],
       } as Category;
       const mockSubcategoryIds = [2, 3];
+
       const mockBooks = [
         { id: 1, name: 'Dune', author: 'Frank Herbert', category: mockCategory, description: 'Sci-Fi novel' } as Book,
         { id: 2, name: 'The Left Hand of Darkness', author: 'Ursula K. Le Guin', category: mockCategory, description: 'Sci-Fi novel' } as Book,
+      ];
+
+      const mockBooksByCategoryDto = [
+        { id: 1, name: 'Dune', author: 'Frank Herbert', categoryId: categoryId, description: 'Sci-Fi novel' } as GetBooksByCategoryDto,
+        { id: 2, name: 'The Left Hand of Darkness', author: 'Ursula K. Le Guin', categoryId: categoryId, description: 'Sci-Fi novel' } as GetBooksByCategoryDto,
       ];
 
       jest.spyOn(categoriesService, 'findOne').mockResolvedValue(mockCategory);
@@ -212,7 +219,7 @@ describe('BooksService', () => {
         where: [{ category: mockCategory }, ...mockSubcategoryIds.map(id => ({ category: { id } }))],
         relations: ['category'],
       });
-      expect(result).toEqual(mockBooks);
+      expect(result).toEqual(mockBooksByCategoryDto);
     });
 
     it('should throw NotFoundException if category is not found', async () => {
@@ -223,5 +230,7 @@ describe('BooksService', () => {
           .toThrowError(new NotFoundException(`Category with ID ${invalidCategoryId} not found.`));
     });
   });
+
+
 
 });

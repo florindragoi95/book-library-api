@@ -3,7 +3,7 @@ import { CategoriesService } from './categories.service';
 import { Category } from './category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, ConflictException } from '@nestjs/common';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
@@ -58,7 +58,7 @@ describe('CategoriesService', () => {
 
     it('should throw error if category name exists', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockCategory);
-      await expect(service.create({ name: 'Fiction' })).rejects.toThrow(BadRequestException);
+      await expect(service.create({ name: 'Fiction' })).rejects.toThrow(ConflictException);
     });
   });
 
@@ -92,7 +92,7 @@ describe('CategoriesService', () => {
     it('should throw error if new name already exists', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(mockCategory);
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockSubcategory);
-      await expect(service.update(1, { name: 'Sci-Fi' })).rejects.toThrow(BadRequestException);
+      await expect(service.update(1, { name: 'Sci-Fi' })).rejects.toThrow(ConflictException);
     });
   });
 
