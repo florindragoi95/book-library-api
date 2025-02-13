@@ -150,24 +150,28 @@ describe('BooksService', () => {
   });
 
   describe('findOneWithBreadcrumb', () => {
-    it('should return book with breadcrumb', async () => {
-      const mockBreadcrumb = "Home > Books > Sci-Fi";
+    it('should return book with breadcrumbs', async () => {
+      const mockBreadcrumbs = [
+          "Fantasy > High Fantasy > Epic Fantasy > Gothic Fiction",
+          "Fantasy / Urban Fantasy / Modern Era"
+      ];
+
       const mockBookWithBreadcrumb = {
         id: 1,
         name: 'Dune Messiah',
         author: 'Frank Herbert',
         description: 'Sci-Fi novel',
         categoryId: mockCategory.id,
-        breadcrumb: mockBreadcrumb,
+        breadcrumbs: mockBreadcrumbs,
       };
 
       jest.spyOn(service, 'findOne').mockResolvedValue(mockBook);
-      jest.spyOn(service, 'getCategoryBreadcrumb').mockResolvedValue(mockBreadcrumb);
+      jest.spyOn(service, 'getCategoryBreadcrumbs').mockResolvedValue(mockBreadcrumbs);
 
       const result = await service.findOneWithBreadcrumb(1);
 
       expect(service.findOne).toHaveBeenCalledWith(1);
-      expect(service.getCategoryBreadcrumb).toHaveBeenCalledWith(mockCategory.id);
+      expect(service.getCategoryBreadcrumbs).toHaveBeenCalledWith(mockCategory.id);
       expect(result).toEqual(mockBookWithBreadcrumb);
     });
 
@@ -230,7 +234,5 @@ describe('BooksService', () => {
           .toThrowError(new NotFoundException(`Category with ID ${invalidCategoryId} not found.`));
     });
   });
-
-
 
 });

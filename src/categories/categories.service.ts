@@ -55,9 +55,13 @@ export class CategoriesService {
         await this.categoryRepository.delete(id);
     }
 
+    async getSubcategories(parentId: number): Promise<Category[]> {
+        return await this.categoryRepository.find({ where: { parentCategoryId: parentId } });
+    }
+
     async getAllSubcategoryIdsRecursively(parentId: number): Promise<number[]> {
         let subcategoryIds: number[] = [];
-        const subcategories = await this.categoryRepository.find({ where: { parentCategoryId: parentId } });
+        const subcategories = await this.getSubcategories(parentId);
 
         for (const sub of subcategories) {
             subcategoryIds.push(sub.id);

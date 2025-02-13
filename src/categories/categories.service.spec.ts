@@ -115,12 +115,32 @@ describe('CategoriesService', () => {
     });
   });
 
+  describe('getSubcategories', () => {
+    it('should return the list of subcategories for a given parentId', async () => {
+      jest.spyOn(repository, 'find').mockResolvedValue([
+        { id: 2, parentCategoryId: 1, name: 'Subcategory 1', books: [] },
+        { id: 3, parentCategoryId: 1, name: 'Subcategory 2', books: [] }
+      ]);
+
+      const subcategories = await service.getSubcategories(1);
+
+      expect(subcategories).toEqual([
+        { id: 2, parentCategoryId: 1, name: 'Subcategory 1', books: [] },
+        { id: 3, parentCategoryId: 1, name: 'Subcategory 2', books: [] }
+      ]);
+    });
+
+    it('should return an empty array if no subcategories are found', async () => {
+      jest.spyOn(repository, 'find').mockResolvedValue([]);
+      const subcategories = await service.getSubcategories(1);
+      expect(subcategories).toEqual([]);
+    });
+  });
+
   describe('getAllSubcategoryIdsRecursively', () => {
     it('should return all subcategory ids recursively', async () => {
-      jest.spyOn(repository, 'find')
-          .mockResolvedValueOnce([
-            { id: 2, parentCategoryId: 1, name: 'Subcategory 1', books: [] },
-          ])
+      jest.spyOn(service, 'getSubcategories')
+          .mockResolvedValueOnce([ { id: 2, parentCategoryId: 1, name: 'Subcategory 1', books: [] } ])
           .mockResolvedValueOnce([]);
 
       expect(await service.getAllSubcategoryIdsRecursively(1)).toEqual([2]);

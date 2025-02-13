@@ -56,16 +56,14 @@ export class BooksService {
         if (!book.category) {
             throw new NotFoundException('Category not found for the book');
         }
-
-        const breadcrumb = await this.getCategoryBreadcrumb(book.category.id);
-
+        const breadcrumbs = await this.getCategoryBreadcrumbs(book.category.id);
         return {
             id: book.id,
             name: book.name,
             author: book.author,
             description: book.description,
             categoryId: book.category.id,
-            breadcrumb,
+            breadcrumbs,
         };
     }
 
@@ -124,25 +122,31 @@ export class BooksService {
         }));
     }
 
-    async getCategoryBreadcrumb(categoryId: number): Promise<string> {
-        let breadcrumb = '';
-        let categoryIdCurrent: number | undefined = categoryId;
+    async getCategoryBreadcrumbs(categoryId: number): Promise<string[]> {
+        const breadcrumbs: string[] = [];
 
-        while (categoryIdCurrent !== undefined) {
-            const category = await this.categoriesService.findOne(categoryIdCurrent);
-            if (!category) {
-                break;
-            }
-
-            breadcrumb = `${category.name}${breadcrumb ? ' > ' + breadcrumb : ''}`;
-
-            if (category.parentCategoryId === null || category.parentCategoryId === undefined) {
-                break;
-            }
-
-            categoryIdCurrent = category.parentCategoryId;
+        const category = await this.categoriesService.findOne(categoryId);
+        if (!category) {
+            throw new NotFoundException('Category not found');
         }
 
-        return breadcrumb;
+        let path: string = category.name;
+
+        const subcategories = await this.categoriesService.getSubcategories(categoryId);
+        if (subcategories.length > 0) {
+            for (const subcategory of subcategories) {
+                const subcategoryPaths = await this.getCategoryBreadcrumbs(subcategory.id);
+                for (const subcategoryPath of subcategoryPaths) {
+                    breadcrumbs.push(path + ' > ' + subcategoryPath);
+                }
+            }
+        } else {
+            breadcrumbs.push(path);
+        }
+
+        return breadcrumbs;
     }
+
+
+
 }

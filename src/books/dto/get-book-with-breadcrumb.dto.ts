@@ -24,7 +24,7 @@ export class GetBookWithBreadcrumbDto {
     @IsString()
     description?: string;
 
-    @ApiProperty({ description: 'Breadcrumb for navigating to the book' })
+    @ApiProperty({ description: 'A list of breadcrumb strings showing the category path to the book, starting from the top-level category and including all nested subcategories, separated by ">".'  })
     @IsString()
-    breadcrumb: string;
+    breadcrumbs: string[];
 }
