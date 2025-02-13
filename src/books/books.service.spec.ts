@@ -8,6 +8,8 @@ import {NotFoundException, ConflictException} from '@nestjs/common';
 import {Category} from "../categories/category.entity";
 import {CreateBookDto} from "./dto/create-book.dto";
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
+import {PaginationDto} from "./dto/pagination.dto";
+import {DEFAULT_PAGE_SIZE} from "./utils/constants";
 
 describe('BooksService', () => {
   let service: BooksService;
@@ -27,6 +29,8 @@ describe('BooksService', () => {
     category: mockCategory,
     description: 'Sci-Fi novel'
   } as Book;
+
+  const paginationDto = { skip: 0, limit: 10 } as PaginationDto;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -153,7 +157,7 @@ describe('BooksService', () => {
     it('should return book with breadcrumbs', async () => {
       const mockBreadcrumbs = [
           "Fantasy > High Fantasy > Epic Fantasy > Gothic Fiction",
-          "Fantasy / Urban Fantasy / Modern Era"
+          "Fantasy > Urban Fantasy > Modern Era"
       ];
 
       const mockBookWithBreadcrumb = {
@@ -215,13 +219,15 @@ describe('BooksService', () => {
       jest.spyOn(categoriesService, 'getAllSubcategoryIdsRecursively').mockResolvedValue(mockSubcategoryIds);
       jest.spyOn(repository, 'find').mockResolvedValue(mockBooks);
 
-      const result = await service.findByCategoryAndSubcategories(categoryId);
+      const result = await service.findByCategoryAndSubcategories(categoryId, paginationDto);
 
       expect(categoriesService.findOne).toHaveBeenCalledWith(categoryId);
       expect(categoriesService.getAllSubcategoryIdsRecursively).toHaveBeenCalledWith(categoryId);
       expect(repository.find).toHaveBeenCalledWith({
         where: [{ category: mockCategory }, ...mockSubcategoryIds.map(id => ({ category: { id } }))],
         relations: ['category'],
+        skip: paginationDto.skip,
+        take: paginationDto.limit ?? DEFAULT_PAGE_SIZE
       });
       expect(result).toEqual(mockBooksByCategoryDto);
     });
@@ -229,7 +235,7 @@ describe('BooksService', () => {
     it('should throw NotFoundException if category is not found', async () => {
       const invalidCategoryId = 999;
       jest.spyOn(categoriesService, 'findOne').mockRejectedValueOnce(new NotFoundException(`Category with ID ${invalidCategoryId} not found.`));
-      await expect(service.findByCategoryAndSubcategories(invalidCategoryId))
+      await expect(service.findByCategoryAndSubcategories(invalidCategoryId, paginationDto))
           .rejects
           .toThrowError(new NotFoundException(`Category with ID ${invalidCategoryId} not found.`));
     });

@@ -7,6 +7,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
+import {PaginationDto} from "./dto/pagination.dto";
+import {DEFAULT_PAGE_SIZE} from "./utils/constants";
 
 @Injectable()
 export class BooksService {
@@ -104,13 +106,15 @@ export class BooksService {
         }
     }
 
-    async findByCategoryAndSubcategories(categoryId: number): Promise<GetBooksByCategoryDto[]> {
+    async findByCategoryAndSubcategories(categoryId: number, paginationDto: PaginationDto): Promise<GetBooksByCategoryDto[]> {
         const category = await this.categoriesService.findOne(categoryId);
         const subcategoryIds = await this.categoriesService.getAllSubcategoryIdsRecursively(categoryId);
 
         const books = await this.bookRepository.find({
             where: [{ category }, ...subcategoryIds.map(id => ({ category: { id } }))],
             relations: ['category'],
+            skip: paginationDto.skip,
+            take: paginationDto.limit ?? DEFAULT_PAGE_SIZE
         });
 
         return books.map(book => ({
@@ -146,7 +150,5 @@ export class BooksService {
 
         return breadcrumbs;
     }
-
-
 
 }

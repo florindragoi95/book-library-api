@@ -38,7 +38,7 @@ GET http://localhost:3000/books/11
 
 #List Books by Category
 ###
-GET http://localhost:3000/books/category/7
+GET http://localhost:3000/books/category/3?skip=0&limit=10
 ###
 
 

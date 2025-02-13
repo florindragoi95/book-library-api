@@ -6,6 +6,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './book.entity';
 import { GetBookWithBreadcrumbDto } from './dto/get-book-with-breadcrumb.dto';
 import { Category } from '../categories/category.entity';
+import {PaginationDto} from "./dto/pagination.dto";
 
 describe('BooksController', () => {
   let booksController: BooksController;
@@ -33,6 +34,10 @@ describe('BooksController', () => {
     description: 'A sci-fi classic',
   };
 
+  const mockBreadcrumbs = [
+    "Fiction > Science Fiction",
+  ];
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BooksController],
@@ -49,7 +54,7 @@ describe('BooksController', () => {
                   author: mockBook.author,
                   description: mockBook.description,
                   categoryId: mockBook.category.id,
-                  breadcrumb: 'Fiction > Science Fiction',
+                  breadcrumbs: mockBreadcrumbs,
                 } as GetBookWithBreadcrumbDto
             ),
             update: jest.fn().mockResolvedValue(mockBook),
@@ -85,7 +90,7 @@ describe('BooksController', () => {
       author: mockBook.author,
       description: mockBook.description,
       categoryId: mockBook.category.id,
-      breadcrumb: 'Fiction > Science Fiction',
+      breadcrumbs: mockBreadcrumbs,
     });
   });
 
@@ -98,7 +103,8 @@ describe('BooksController', () => {
     await expect(booksController.remove(1)).resolves.toBeUndefined();
   });
 
-  it('should retrieve books by category and subcategories', async () => {
-    await expect(booksController.getBooksByCategoryAndSubcategories(mockCategory.id)).resolves.toEqual([mockBook]);
+  it('should retrieve books by category and subcategories with pagination', async () => {
+    const paginationDto = { skip: 0, limit: 10 } as PaginationDto;
+    await expect(booksController.getBooksByCategoryAndSubcategories(mockCategory.id, paginationDto)).resolves.toEqual([mockBook]);
   });
 });

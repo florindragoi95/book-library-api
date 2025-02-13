@@ -1,11 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} from '@nestjs/common';
 import { BooksService } from "./books.service";
 import { CreateBookDto } from "./dto/create-book.dto";
 import { UpdateBookDto } from "./dto/update-book.dto";
 import { Book } from "./book.entity";
 import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery} from '@nestjs/swagger';
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
+import {PaginationDto} from "./dto/pagination.dto";
 
 @ApiTags('books')
 @Controller('books')
@@ -63,8 +64,24 @@ export class BooksController {
     @Get('/category/:categoryId')
     @ApiOperation({ summary: 'Get books by category and its subcategories' })
     @ApiResponse({ status: 200, description: 'List of books in the category', type: [GetBooksByCategoryDto] })
-    async getBooksByCategoryAndSubcategories (@Param('categoryId', ParseIntPipe) categoryId: number
+    @ApiQuery({
+        name: 'skip',
+        description: 'Number of books to skip (for pagination)',
+        required: false,
+        type: Number,
+        example: 0,
+    })
+    @ApiQuery({
+        name: 'limit',
+        description: 'Number of books to return (limit the results)',
+        required: false,
+        type: Number,
+        example: 10,
+    })
+    async getBooksByCategoryAndSubcategories (
+        @Param('categoryId', ParseIntPipe) categoryId: number,
+        @Query() paginationDto: PaginationDto
     ): Promise<GetBooksByCategoryDto[]> {
-        return this.booksService.findByCategoryAndSubcategories(categoryId);
+        return this.booksService.findByCategoryAndSubcategories(categoryId, paginationDto);
     }
 }
