@@ -114,7 +114,7 @@ export class BooksService {
         });
     }
 
-    private async getCategoryBreadcrumb(categoryId: number): Promise<string> {
+    async getCategoryBreadcrumb(categoryId: number): Promise<string> {
         let breadcrumb = '';
         let categoryIdCurrent: number | undefined = categoryId;
 
