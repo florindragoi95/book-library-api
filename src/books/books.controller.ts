@@ -32,7 +32,7 @@ export class BooksController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get a book with breadcrumb by ID' })
+    @ApiOperation({ summary: 'Get a book with breadcrumbs by ID' })
     @ApiResponse({ status: 200, description: 'The found book with breadcrumb', type: GetBookWithBreadcrumbDto })
     @ApiResponse({ status: 404, description: 'Book not found' })
     async getBookWithBreadcrumb(@Param('id', ParseIntPipe) id: number): Promise<GetBookWithBreadcrumbDto> {
@@ -66,14 +66,14 @@ export class BooksController {
     @ApiResponse({ status: 200, description: 'List of books in the category', type: [GetBooksByCategoryDto] })
     @ApiQuery({
         name: 'skip',
-        description: 'Number of books to skip (for pagination)',
+        description: 'Number of books to skip',
         required: false,
         type: Number,
         example: 0,
     })
     @ApiQuery({
         name: 'limit',
-        description: 'Number of books to return (limit the results)',
+        description: 'Number of books per page',
         required: false,
         type: Number,
         example: 10,
