@@ -9,7 +9,6 @@ import {Category} from "../categories/category.entity";
 import {CreateBookDto} from "./dto/create-book.dto";
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
 import {PaginationDto} from "./dto/pagination.dto";
-import {DEFAULT_PAGE_SIZE} from "./utils/constants";
 
 describe('BooksService', () => {
   let service: BooksService;
@@ -227,7 +226,7 @@ describe('BooksService', () => {
         where: [{ category: mockCategory }, ...mockSubcategoryIds.map(id => ({ category: { id } }))],
         relations: ['category'],
         skip: paginationDto.skip,
-        take: paginationDto.limit ?? DEFAULT_PAGE_SIZE
+        take: paginationDto.limit
       });
       expect(result).toEqual(mockBooksByCategoryDto);
     });

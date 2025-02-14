@@ -66,14 +66,14 @@ export class BooksController {
     @ApiResponse({ status: 200, description: 'List of books in the category', type: [GetBooksByCategoryDto] })
     @ApiQuery({
         name: 'skip',
-        description: 'Number of books to skip',
+        description: 'Number of books to skip (defaults to 0 if not specified)',
         required: false,
         type: Number,
         example: 0,
     })
     @ApiQuery({
         name: 'limit',
-        description: 'Number of books per page',
+        description: 'Number of books per page (defaults to 10 if not specified)',
         required: false,
         type: Number,
         example: 10,

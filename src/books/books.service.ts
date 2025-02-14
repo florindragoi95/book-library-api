@@ -8,7 +8,6 @@ import { Repository } from "typeorm";
 import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
 import {PaginationDto} from "./dto/pagination.dto";
-import {DEFAULT_PAGE_SIZE} from "./utils/constants";
 
 @Injectable()
 export class BooksService {
@@ -114,7 +113,7 @@ export class BooksService {
             where: [{ category }, ...subcategoryIds.map(id => ({ category: { id } }))],
             relations: ['category'],
             skip: paginationDto.skip,
-            take: paginationDto.limit ?? DEFAULT_PAGE_SIZE
+            take: paginationDto.limit
         });
 
         return books.map(book => ({

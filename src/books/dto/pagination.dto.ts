@@ -7,11 +7,11 @@ export class PaginationDto {
     @Min(0)
     @IsOptional()
     @Transform(({ value }) => parseInt(value, 10))
-    skip: number;
+    skip: number = 0;
 
     @IsNumber()
     @IsPositive()
     @IsOptional()
     @Transform(({ value }) => parseInt(value, 10))
-    limit: number;
+    limit: number = 10;
 }
