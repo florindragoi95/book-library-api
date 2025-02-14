@@ -52,6 +52,9 @@ psql -U $DATABASE_USER -d $DATABASE_NAME -h $DATABASE_HOST -p $DATABASE_PORT -a 
 3. Copy the contents of seed.sql file.
 4. Paste and execute the queries in the query window.
 
+# Option 3: Use Migrations (Planned with Prisma)
+Migrations with Prisma are a potential future option for managing the database schema. If Prisma migrations are implemented, the `seed.sql` file may no longer be required for database population, as migrations would handle the schema changes and data seeding.
+
 # Start the server
 pnpm start
 ```
