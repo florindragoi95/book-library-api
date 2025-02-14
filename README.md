@@ -31,7 +31,7 @@ This project is a backend API for managing a book library, implemented in **Type
 
 ## Steps
 
-```aidl
+```bash
 # Clone the repository
 git clone https://github.com/florindragoi95/book-library-api.git
 cd book-library-api
@@ -43,14 +43,14 @@ pnpm install
 cp .env.example .env  # Update database credentials in .env
 
 # Option 1: Run SQL seed file via command line
-# Run the seed.sql file to populate the database
+Run the seed.sql file to populate the database
 psql -U $DATABASE_USER -d $DATABASE_NAME -h $DATABASE_HOST -p $DATABASE_PORT -a -f seed.sql
 
 # Option 2: Manually run the SQL in pgAdmin4
-# 1. Open pgAdmin4 and connect to your database.
-# 2. Open a query window.
-# 3. Copy the contents of seed.sql file.
-# 4. Paste and execute the queries in the query window.
+1. Open pgAdmin4 and connect to your database.
+2. Open a query window.
+3. Copy the contents of seed.sql file.
+4. Paste and execute the queries in the query window.
 
 # Start the server
 pnpm start
@@ -69,9 +69,9 @@ $ pnpm run test:cov
 ---------------------
 # Swagger Documentation
 
-Swagger UI is be available at:
+Swagger UI is available at:
 
-```aidl
+```bash
 http://localhost:3000/api
 ```
 
