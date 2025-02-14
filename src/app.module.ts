@@ -19,8 +19,8 @@ import {DataSource} from "typeorm";
       username: process.env.DATABASE_USER!,
       password: process.env.DATABASE_PASSWORD!,
       database: process.env.DATABASE_NAME!,
-      entities: [Book, Category], //['dist/**/*.entity{.ts,.js}']
-      synchronize: true,
+      entities: [Book, Category],
+      synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
     }),
     TypeOrmModule.forFeature([Book, Category]),
     BooksModule,

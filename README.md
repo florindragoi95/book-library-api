@@ -1,23 +1,59 @@
 # book-library-api
-An API for book-library
+This project is a backend API for managing a book library, implemented in **TypeScript** using **NestJS**.
 
-## Project setup
+--------
+# Features
 
-```bash
-$ pnpm install
-```
+*   CRUD operations for **Books** (Add/Edit/Delete/List/View)
 
-## Compile and run the project
+*   CRUD operations for **Categories** (Add/Edit/Delete/List/View)
 
-```bash
-# development
-$ pnpm run start
+*   Unique name validation for both Books and Categories
 
-# watch mode
-$ pnpm run start:dev
+*   Nested Categories (expandable to infinite depth)
 
-# production mode
-$ pnpm run start:prod
+*   Breadcrumb generation for Books
+
+*   Automatic deletion of Books when their Category is removed
+
+*   Unit tests for core functionality
+
+------------
+
+# Installation
+
+## Prerequisites
+
+*   **Node.js** (v20+ recommended)
+
+*   **PostgreSQL** (configurable via environment variables)
+
+
+## Steps
+
+```aidl
+# Clone the repository
+git clone https://github.com/florindragoi95/book-library-api.git
+cd book-library-api
+
+# Install dependencies
+pnpm install
+
+# Configure environment variables
+cp .env.example .env  # Update database credentials in .env
+
+# Option 1: Run SQL seed file via command line
+# Run the seed.sql file to populate the database
+psql -U $DATABASE_USER -d $DATABASE_NAME -h $DATABASE_HOST -p $DATABASE_PORT -a -f seed.sql
+
+# Option 2: Manually run the SQL in pgAdmin4
+# 1. Open pgAdmin4 and connect to your database.
+# 2. Open a query window.
+# 3. Copy the contents of seed.sql file.
+# 4. Paste and execute the queries in the query window.
+
+# Start the server
+pnpm start
 ```
 
 ## Run tests
@@ -26,22 +62,20 @@ $ pnpm run start:prod
 # unit tests
 $ pnpm run test
 
-# e2e tests
-$ pnpm run test:e2e
-
 # test coverage
 $ pnpm run test:cov
 ```
 
-## Deployment
+---------------------
+# Swagger Documentation
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Swagger UI is be available at:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g mau
-$ mau deploy
+```aidl
+http://localhost:3000/api
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+-------
+# License
+
+This project is licensed under the MIT License.
