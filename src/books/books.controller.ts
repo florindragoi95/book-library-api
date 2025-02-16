@@ -2,11 +2,12 @@ import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} 
 import { BooksService } from "./books.service";
 import { CreateBookDto } from "./dto/create-book.dto";
 import { UpdateBookDto } from "./dto/update-book.dto";
-import { Book } from "./book.entity";
+import { Book } from "./entities/book.entity";
 import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
 import {ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery} from '@nestjs/swagger';
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
 import {PaginationDto} from "./dto/pagination.dto";
+import {Prisma} from "@generated/client";
 
 @ApiTags('books')
 @Controller('books')
@@ -20,14 +21,14 @@ export class BooksController {
     @ApiResponse({ status: 201, description: 'The book has been successfully created.', type: Book })
     @ApiResponse({ status: 400, description: 'Invalid request data' })
     @ApiResponse({ status: 409, description: 'Book name already exists' })
-    async create(@Body() createBookDto: CreateBookDto): Promise<Book> {
+    async create(@Body() createBookDto: CreateBookDto): Promise<Prisma.BookGetPayload<{}>> {
         return this.booksService.create(createBookDto);
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all books' })
     @ApiResponse({ status: 200, description: 'List of all books', type: [Book] })
-    async findAll(): Promise<Book[]> {
+    async findAll(): Promise<Prisma.BookGetPayload<{}>[]> {
         return this.booksService.findAll();
     }
 
@@ -41,7 +42,7 @@ export class BooksController {
 
     @Patch(':id')
     @ApiOperation({ summary: 'Update a book by ID' })
-    @ApiBody({ type: UpdateBookDto })  // Documents the body of the request
+    @ApiBody({ type: UpdateBookDto })
     @ApiResponse({ status: 200, description: 'The updated book', type: Book })
     @ApiResponse({ status: 400, description: 'Invalid request data' })
     @ApiResponse({ status: 404, description: 'Book not found' })
@@ -49,7 +50,7 @@ export class BooksController {
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateBookDto: UpdateBookDto,
-    ): Promise<Book> {
+    ): Promise<Prisma.BookGetPayload<{}>> {
         return this.booksService.update(id, updateBookDto);
     }
 

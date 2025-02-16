@@ -2,8 +2,9 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from 
 import { CategoriesService } from "./categories.service";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
-import { Category } from "./category.entity";
+import { Category } from "./entities/category.entity";
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {Prisma} from "@generated/client";
 
 @ApiTags('categories')
 @Controller('categories')
@@ -15,14 +16,14 @@ export class CategoriesController {
     @ApiResponse({ status: 201, description: 'Category successfully created', type: Category })
     @ApiResponse({ status: 400, description: 'Invalid request data' })
     @ApiResponse({ status: 409, description: 'Category name already exists' })
-    async create(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
+    async create(@Body() createCategoryDto: CreateCategoryDto): Promise<Prisma.CategoryGetPayload<{}>> {
         return this.categoriesService.create(createCategoryDto);
     }
 
     @Get()
     @ApiOperation({ summary: 'Retrieve all categories' })
     @ApiResponse({ status: 200, description: 'List of all categories', type: [Category] })
-    async findAll(): Promise<Category[]> {
+    async findAll(): Promise<Prisma.CategoryGetPayload<{}>[]> {
         return this.categoriesService.findAll();
     }
 
@@ -30,7 +31,7 @@ export class CategoriesController {
     @ApiOperation({ summary: 'Get a category by ID' })
     @ApiResponse({ status: 200, description: 'Category found', type: Category })
     @ApiResponse({ status: 404, description: 'Category not found' })
-    async findOne(@Param('id', ParseIntPipe) id: number): Promise<Category> {
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<Prisma.CategoryGetPayload<{}>> {
         return this.categoriesService.findOne(id);
     }
 
@@ -43,7 +44,7 @@ export class CategoriesController {
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateCategoryDto: UpdateCategoryDto,
-    ): Promise<Category> {
+    ): Promise<Prisma.CategoryGetPayload<{}>> {
         return this.categoriesService.update(id, updateCategoryDto);
     }
 

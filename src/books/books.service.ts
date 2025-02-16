@@ -2,25 +2,24 @@ import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import { CategoriesService } from "../categories/categories.service";
 import { CreateBookDto } from "./dto/create-book.dto";
 import { UpdateBookDto } from "./dto/update-book.dto";
-import { Book } from "./book.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
 import {PaginationDto} from "./dto/pagination.dto";
+import {DatabaseService} from "../database/database.service";
+import {Prisma} from "@generated/client";
 
 @Injectable()
 export class BooksService {
 
     constructor(
+        private readonly databaseService: DatabaseService,
         private readonly categoriesService: CategoriesService,
-
-        @InjectRepository(Book)
-        private bookRepository: Repository<Book>,
     ) {}
 
-    async create(createBookDto: CreateBookDto): Promise<Book> {
-        const existingBook = await this.bookRepository.findOne({ where: { name: createBookDto.name } });
+    async create(createBookDto: CreateBookDto): Promise<Prisma.BookGetPayload<{}>> {
+        const existingBook = await this.databaseService.book.findUnique({
+            where: { name: createBookDto.name },
+        });
         if (existingBook) {
             throw new ConflictException('Book name already exists.');
         }
@@ -30,22 +29,31 @@ export class BooksService {
             throw new NotFoundException(`Category with ID ${createBookDto.categoryId} not found.`);
         }
 
-        const newBook = this.bookRepository.create({
-            name: createBookDto.name,
-            author: createBookDto.author,
-            category,
-            description: createBookDto.description,
+        const newBook = await this.databaseService.book.create({
+            data: {
+                name: createBookDto.name,
+                author: createBookDto.author,
+                description: createBookDto.description,
+                category: {
+                    connect: { id: createBookDto.categoryId }
+                },
+            },
         });
 
-        return this.bookRepository.save(newBook);
+        return newBook;
     }
 
-    async findAll(): Promise<Book[]> {
-        return this.bookRepository.find({ relations: ['category'] });
+    async findAll(): Promise<Prisma.BookGetPayload<{}>[]> {
+        return this.databaseService.book.findMany({
+            include: { category: true },
+        });
     }
 
-    async findOne(id: number): Promise<Book> {
-        const book = await this.bookRepository.findOne({ where: { id }, relations: ['category'] });
+    async findOne(id: number): Promise<Prisma.BookGetPayload<{}>> {
+        const book = await this.databaseService.book.findUnique({
+            where: { id },
+            include: { category: true },
+        });
         if (!book) {
             throw new NotFoundException('Book not found');
         }
@@ -54,25 +62,29 @@ export class BooksService {
 
     async findOneWithBreadcrumb(id: number): Promise<GetBookWithBreadcrumbDto> {
         const book = await this.findOne(id);
-        if (!book.category) {
+
+        if (!book.categoryId) {
             throw new NotFoundException('Category not found for the book');
         }
-        const breadcrumbs = await this.getCategoryBreadcrumbs(book.category.id);
+        const breadcrumbs = await this.getCategoryBreadcrumbs(book.categoryId);
+
         return {
             id: book.id,
             name: book.name,
             author: book.author,
-            description: book.description,
-            categoryId: book.category.id,
+            description: book.description ?? undefined,
+            categoryId: book.categoryId,
             breadcrumbs,
         };
     }
 
-    async update(id: number, updateBookDto: UpdateBookDto): Promise<Book> {
+    async update(id: number, updateBookDto: UpdateBookDto): Promise<Prisma.BookGetPayload<{}>> {
         const book = await this.findOne(id);
 
         if (updateBookDto.name) {
-            const existingBook = await this.bookRepository.findOne({ where: { name: updateBookDto.name } });
+            const existingBook = await this.databaseService.book.findUnique({
+                where: { name: updateBookDto.name },
+            });
             if (existingBook && existingBook.id !== id) {
                 throw new ConflictException('Book name already exists.');
             }
@@ -83,24 +95,28 @@ export class BooksService {
             if (!category) {
                 throw new NotFoundException(`Category with ID ${updateBookDto.categoryId} not found.`);
             }
-            book.category = category;
         }
 
-        if (updateBookDto.description) {
-            book.description = updateBookDto.description;
-        }
+        const { name, author, description } = updateBookDto;
 
-        if (updateBookDto.author) {
-            book.author = updateBookDto.author;
-        }
-
-        Object.assign(book, updateBookDto);
-        return this.bookRepository.save(book);
+        return this.databaseService.book.update({
+            where: { id },
+            data: {
+                name,
+                author,
+                description,
+                category: updateBookDto.categoryId ?
+                    { connect: {id: updateBookDto.categoryId}} : undefined,
+            },
+        });
     }
 
     async delete(id: number): Promise<void> {
-        const result = await this.bookRepository.delete(id);
-        if (result.affected === 0) {
+        const book = await this.databaseService.book.delete({
+            where: { id },
+        }).catch( () => null);
+
+        if (!book) {
             throw new NotFoundException('Book not found');
         }
     }
@@ -109,19 +125,24 @@ export class BooksService {
         const category = await this.categoriesService.findOne(categoryId);
         const subcategoryIds = await this.categoriesService.getAllSubcategoryIdsRecursively(categoryId);
 
-        const books = await this.bookRepository.find({
-            where: [{ category }, ...subcategoryIds.map(id => ({ category: { id } }))],
-            relations: ['category'],
+        const books = await this.databaseService.book.findMany({
+            where: {
+                OR: [
+                    { categoryId: category.id },
+                    ...subcategoryIds.map(id => ({ categoryId: id })),
+                ],
+            },
+            include: { category: true },
             skip: paginationDto.skip,
-            take: paginationDto.limit
+            take: paginationDto.limit,
         });
 
-        return books.map(book => ({
+        return books.map((book) => ({
             id: book.id,
             name: book.name,
             author: book.author,
             categoryId: book.category.id,
-            description: book.description,
+            description: book.description ?? undefined,
         }));
     }
 

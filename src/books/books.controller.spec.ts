@@ -3,9 +3,9 @@ import { BooksController } from './books.controller';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from './book.entity';
+import { Book } from './entities/book.entity';
 import { GetBookWithBreadcrumbDto } from './dto/get-book-with-breadcrumb.dto';
-import { Category } from '../categories/category.entity';
+import { Category } from '../categories/entities/category.entity';
 import {PaginationDto} from "./dto/pagination.dto";
 
 describe('BooksController', () => {
