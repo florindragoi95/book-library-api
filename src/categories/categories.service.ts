@@ -3,13 +3,16 @@ import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import {DatabaseService} from "../database/database.service";
 import {Prisma} from "@generated/client";
+import {CreateCategoryResponseDto} from "./dto/create-category-response.dto";
+import {CategoryResponseDto} from "./dto/category-response.dto";
+import {UpdateCategoryResponseDto} from "./dto/update-category-response.dto";
 
 @Injectable()
 export class CategoriesService {
 
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async create(createCategoryDto: CreateCategoryDto): Promise<Prisma.CategoryGetPayload<{}>> {
+    async create(createCategoryDto: CreateCategoryDto): Promise<CreateCategoryResponseDto> {
         const existingCategory = await this.databaseService.category.findUnique({
             where: { name: createCategoryDto.name },
         });
@@ -21,27 +24,43 @@ export class CategoriesService {
             await this.findOne(createCategoryDto.parentCategoryId);
         }
 
-        return this.databaseService.category.create({
+        const newCategory = await this.databaseService.category.create({
             data: {
                 name: createCategoryDto.name,
                 parentCategoryId: createCategoryDto.parentCategoryId ?? null,
             },
         });
+
+        return {
+            id: newCategory.id,
+            name: newCategory.name,
+            parentCategoryId: newCategory.parentCategoryId ?? undefined,
+        }
     }
 
-    async findAll(): Promise<Prisma.CategoryGetPayload<{}>[]> {
-        return this.databaseService.category.findMany();
+    async findAll(): Promise<CategoryResponseDto[]> {
+        const categories = await this.databaseService.category.findMany();
+        return categories.map(category => ({
+            id: category.id,
+            name: category.name,
+            parentCategoryId: category.parentCategoryId ?? undefined,
+        }));
     }
 
-    async findOne(id: number): Promise<Prisma.CategoryGetPayload<{}>>  {
+    async findOne(id: number): Promise<CategoryResponseDto>  {
         const category = await this.databaseService.category.findUnique({ where: { id } });
         if (!category) {
             throw new NotFoundException('Category not found');
         }
-        return category;
+
+        return {
+            id: category.id,
+            name: category.name,
+            parentCategoryId: category.parentCategoryId ?? undefined,
+        };
     }
 
-    async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Prisma.CategoryGetPayload<{}>> {
+    async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<UpdateCategoryResponseDto> {
         const category = await this.findOne(id);
 
         if (updateCategoryDto.name) {
@@ -63,13 +82,19 @@ export class CategoriesService {
 
         const { name, parentCategoryId } = updateCategoryDto;
 
-        return this.databaseService.category.update({
+        const updatedCategory = await this.databaseService.category.update({
             where: { id },
             data: {
                 name,
                 parentCategoryId: parentCategoryId ?? null,
             },
         });
+
+        return {
+            id: updatedCategory.id,
+            name: updatedCategory.name,
+            parentCategoryId: updatedCategory.parentCategoryId ?? undefined,
+        };
     }
 
     async delete(id: number): Promise<void> {

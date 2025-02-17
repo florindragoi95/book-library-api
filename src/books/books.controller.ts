@@ -2,12 +2,13 @@ import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} 
 import { BooksService } from "./books.service";
 import { CreateBookDto } from "./dto/create-book.dto";
 import { UpdateBookDto } from "./dto/update-book.dto";
-import { Book } from "./entities/book.entity";
 import { GetBookWithBreadcrumbDto } from "./dto/get-book-with-breadcrumb.dto";
 import {ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery} from '@nestjs/swagger';
 import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
 import {PaginationDto} from "./dto/pagination.dto";
-import {Prisma} from "@generated/client";
+import {CreateBookResponseDto} from "./dto/create-book-response.dto";
+import {BookResponseDto} from "./dto/book-response.dto";
+import {UpdateBookResponseDto} from "./dto/update-book-response.dto";
 
 @ApiTags('books')
 @Controller('books')
@@ -18,17 +19,17 @@ export class BooksController {
     @Post()
     @ApiOperation({ summary: 'Create a new book' })
     @ApiBody({ type: CreateBookDto })
-    @ApiResponse({ status: 201, description: 'The book has been successfully created.', type: Book })
+    @ApiResponse({ status: 201, description: 'The book has been successfully created.', type: CreateBookResponseDto })
     @ApiResponse({ status: 400, description: 'Invalid request data' })
     @ApiResponse({ status: 409, description: 'Book name already exists' })
-    async create(@Body() createBookDto: CreateBookDto): Promise<Prisma.BookGetPayload<{}>> {
+    async create(@Body() createBookDto: CreateBookDto): Promise<CreateBookResponseDto> {
         return this.booksService.create(createBookDto);
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all books' })
-    @ApiResponse({ status: 200, description: 'List of all books', type: [Book] })
-    async findAll(): Promise<Prisma.BookGetPayload<{}>[]> {
+    @ApiResponse({ status: 200, description: 'List of all books', type: [BookResponseDto] })
+    async findAll(): Promise<BookResponseDto[]> {
         return this.booksService.findAll();
     }
 
@@ -43,14 +44,14 @@ export class BooksController {
     @Patch(':id')
     @ApiOperation({ summary: 'Update a book by ID' })
     @ApiBody({ type: UpdateBookDto })
-    @ApiResponse({ status: 200, description: 'The updated book', type: Book })
+    @ApiResponse({ status: 200, description: 'The updated book', type: UpdateBookResponseDto })
     @ApiResponse({ status: 400, description: 'Invalid request data' })
     @ApiResponse({ status: 404, description: 'Book not found' })
     @ApiResponse({ status: 409, description: 'Book name already exists' })
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateBookDto: UpdateBookDto,
-    ): Promise<Prisma.BookGetPayload<{}>> {
+    ): Promise<UpdateBookResponseDto> {
         return this.booksService.update(id, updateBookDto);
     }
 

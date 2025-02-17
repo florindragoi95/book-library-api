@@ -7,6 +7,9 @@ import {GetBooksByCategoryDto} from "./dto/get-books-by-category.dto";
 import {PaginationDto} from "./dto/pagination.dto";
 import {DatabaseService} from "../database/database.service";
 import {Prisma} from "@generated/client";
+import {BookResponseDto} from "./dto/book-response.dto";
+import {CreateBookResponseDto} from "./dto/create-book-response.dto";
+import {UpdateBookResponseDto} from "./dto/update-book-response.dto";
 
 @Injectable()
 export class BooksService {
@@ -16,7 +19,7 @@ export class BooksService {
         private readonly categoriesService: CategoriesService,
     ) {}
 
-    async create(createBookDto: CreateBookDto): Promise<Prisma.BookGetPayload<{}>> {
+    async create(createBookDto: CreateBookDto): Promise<CreateBookResponseDto> {
         const existingBook = await this.databaseService.book.findUnique({
             where: { name: createBookDto.name },
         });
@@ -40,13 +43,26 @@ export class BooksService {
             },
         });
 
-        return newBook;
+        return {
+            id: newBook.id,
+            name: newBook.name,
+            author: newBook.author,
+            description: newBook.description ?? undefined,
+            categoryId: newBook.categoryId,
+        }
     }
 
-    async findAll(): Promise<Prisma.BookGetPayload<{}>[]> {
-        return this.databaseService.book.findMany({
+    async findAll(): Promise<BookResponseDto[]> {
+        const books = await this.databaseService.book.findMany({
             include: { category: true },
         });
+        return books.map(book => ({
+            id: book.id,
+            name: book.name,
+            author: book.author,
+            description: book.description ?? undefined,
+            categoryId: book.categoryId,
+        }));
     }
 
     async findOne(id: number): Promise<Prisma.BookGetPayload<{}>> {
@@ -78,7 +94,7 @@ export class BooksService {
         };
     }
 
-    async update(id: number, updateBookDto: UpdateBookDto): Promise<Prisma.BookGetPayload<{}>> {
+    async update(id: number, updateBookDto: UpdateBookDto): Promise<UpdateBookResponseDto> {
         const book = await this.findOne(id);
 
         if (updateBookDto.name) {
@@ -99,7 +115,7 @@ export class BooksService {
 
         const { name, author, description } = updateBookDto;
 
-        return this.databaseService.book.update({
+        const updatedBook = await this.databaseService.book.update({
             where: { id },
             data: {
                 name,
@@ -109,6 +125,14 @@ export class BooksService {
                     { connect: {id: updateBookDto.categoryId}} : undefined,
             },
         });
+
+        return {
+            id: updatedBook.id,
+            name: updatedBook.name,
+            author: updatedBook.author,
+            description: updatedBook.description ?? undefined,
+            categoryId: updatedBook.categoryId
+        };
     }
 
     async delete(id: number): Promise<void> {
