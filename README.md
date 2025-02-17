@@ -57,8 +57,10 @@ psql -U $DATABASE_USER -d $DATABASE_NAME -h $DATABASE_HOST -p $DATABASE_PORT -a 
 3. Copy the contents of seed.sql file.
 4. Paste and execute the queries in the query window.
 
-# Start the server (Production Only)
-pnpm start:prod
+# Start the server
+pnpm start       # Start the application normally  
+pnpm start:dev   # Start in development mode with watch mode  
+pnpm start:prod  # Start in production mode  
 ```
 
 ## Run tests
