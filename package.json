@@ -7,8 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prisma:generate": "prisma generate",
-    "copy-prisma": "cp -r src/generated dist/generated",
-    "build": "nest build && pnpm prisma:generate && pnpm copy-prisma",
+    "build": "nest build && pnpm prisma:generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
